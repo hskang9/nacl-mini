@@ -1,0 +1,8 @@
+/target
+**/*.rs.bk
+notes
+note
+Cargo.lock
+src/bin
+*.sw?
+*~
