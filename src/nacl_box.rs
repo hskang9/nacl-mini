@@ -4,8 +4,6 @@ use crypto::symmetriccipher::SynchronousStreamCipher;
 use crypto::mac::Mac;
 
 use super::{PublicX25519, Secret, Error}; 
-use rand::{Rng, OsRng};
-use std::time::SystemTime;
 
 
 static VERSION: &str = "x25519-xsalsa20-poly1305";
@@ -18,24 +16,6 @@ pub const MAC_BYTES: usize = 16;
 
 
 
-fn gen_nonce() ->[u8; NONCE_BYTES]{
-    let now = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)
-        .unwrap()
-        .as_secs()
-        .to_string();
-
-    let counter = now.as_bytes();
-    let l = counter.len();
-
-    let mut nonce = [0u8;NONCE_BYTES];
-    nonce[..l].copy_from_slice(&counter);
-
-    let mut r = OsRng::new().unwrap();
-    r.fill_bytes(&mut nonce[l..]);
-
-    nonce
-    
-}
 
 fn poly1305_(key: &[u8], msg: &[u8], mac: &mut [u8]){
     

@@ -1,9 +1,10 @@
 use std::fmt;
+use std::error::Error;
 use rustc_hex::hex::ToHex;
 
-use super::{Public, Secret, Error};
+use traits::{PublicKeyContext, SecretKeyContext, FromUnsafeSlice}
 
-
+#[derive(Debug,Clone,PartialEq)]
 pub struct KeyPair<S,P>{
     secret: S,
     public: P,
@@ -20,36 +21,67 @@ impl<S,P> fmt::Display for KeyPair<S, P>
 }
 
 
+impl<S,P:PublicKeyContext> KeyPair<S,P>{
+    pub fn context(&self) -> String{
+        self.public.context()
+    }
+}
+
+
 impl<S,P> KeyPair<S, P>
-    where S: SecretKeyContext + FromSecretSlice, 
-          P: PublicKeyContext + FromSecretSlice 
+    where S: SecretKeyContext + FromUnsafeSlice, 
+          P: PublicKeyContext  
 {
-    pub fn from_secret_slice(slice: &[u8]) -> Result< KeyPair<S,P>, std::error::Error>{
+    pub fn from_secret_slice(slice: &[u8]) -> Result< KeyPair<S,P>, ()>{
         let secret = S::from_unsafe_slice(slice)?;
-        let public = P::from_unsafe_slice(slice)?;
+        let public = P::from_secret(&secret)?;
 
-        if !public.valid_context() || !secret.valid_context(){
-            return Err(Error::InvalidKeyType)
+        if ! <S as SecretKeyContext>::valid(&secret){
+            return Err(Error::InvalidSecretKey);
+        }
 
-        Ok(   KeyPair<S,P>{ secret, public} )
+        if ! <P as PublicKeyContext>::valid(&public){
+            return Err(Error::InvalidPublicKey);
+        }
+
+
+        Ok(   KeyPair{ secret, public} )
     }
 }
 
 impl<S,P> KeyPair<S,P>
-    where S: RandomFill + SecretKeyContext,
-          P: FromSecret<S> + PublicKeyContext
+    where S: SecretKeyContext, 
+          P: PublicKeyContext
 {
-    fn generate_keypair() -> Result < KeyPair<S,P>, std::error::Error>{
-        let secret = S::random_fill()?;
-        let public = <P as FromSecret<S> >::from_secret(&secret)?;
+    pub fn generate_keypair() -> Result < KeyPair<S,P>, ()>{
+        let secret =  S::random_fill()?;
+        let public =  P::from_secret(&secret)?;
+    
+    
+        if ! <P as PublicKeyContext>::valid(&public){
+            return Err(Error::InvalidPublicKey);
+        }
 
-        Ok( KeyPair<S,P> { secret, public } )
+        Ok( KeyPair{ secret, public } )
     }
-
 }
 
 
 impl<S,P> KeyPair<S,P>
+{
+    pub fn secret(&self) -> &S {
+        &self.secret
+    }
+
+    pub fn public(&self) -> &P {
+        &self.public
+    }
+}
+
+
+
+
+
 
 
 

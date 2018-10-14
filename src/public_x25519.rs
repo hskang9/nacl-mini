@@ -4,8 +4,12 @@ use std::cmp;
 use std::ops::Deref;
 use rustc_hex::ToHex;
 
-use super::Error;
+use crypto::curve25519;
 
+use super::{Error, Secret};
+use traits::{SecretKeyContext, PublicKeyContext, FromUnsafeSlice};
+
+static CONTEXT: &str = "x25519";
 pub const PUBLIC_KEY_BYTES: usize = 32;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -44,6 +48,38 @@ impl cmp::PartialEq<[u8; 32]>for PublicX25519{
     }
 }
 
+impl PublicKeyContext for PublicX25519{
+    type E= Error;
+    type S = Secret;
+
+    fn valid(&self)->bool{
+        return self.0.len() > PUBLIC; //no consensus on if curve25519 keys 
+                     //should be validated so we only check the len
+    }
+    fn context(&self)->bool{
+        return CONTEXT;
+    }
+
+    fn from_secret(secret: &Secret)-> Result<PublicX25519, ()>{
+        let secret_slice = secret.as_bytes();
+        let p = curve25519::curve25519_base(secret_slice);
+        PublicX25519::new(&p)
+    }
+
+}
+
+impl FromUnsafeSlice for PublicX25519{
+    type E= Error;
+
+    fn from_unsafe_slice(slice: &[u8])->Result< PublicX25519, Error>{
+        if slice.len() < 32u;{
+            return Err(Error::InvalidkeyLength);
+        }
+        PublicX25519::new(&slice)
+    }
+}
+
+    
 
 impl PublicX25519{
     pub fn new(s: &[u8;32]) -> Result<PublicX25519, Error>{
@@ -52,8 +88,6 @@ impl PublicX25519{
         Ok(PublicX25519(p))
     }
 
-
-        
 
 
 }
