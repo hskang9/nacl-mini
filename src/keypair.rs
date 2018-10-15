@@ -1,8 +1,10 @@
 use std::fmt;
-use std::error::Error;
-use rustc_hex::hex::ToHex;
+use std::convert::{From,Into};
+use rustc_hex::ToHex;
 
-use traits::{PublicKeyContext, SecretKeyContext, FromUnsafeSlice}
+
+use traits::{PublicKeyContext, KeyContext};
+use utils::rand_fill;
 
 #[derive(Debug,Clone,PartialEq)]
 pub struct KeyPair<S,P>{
@@ -12,7 +14,7 @@ pub struct KeyPair<S,P>{
 
 impl<S,P> fmt::Display for KeyPair<S, P>
     where S: ToHex, 
-          P: ToHex + PublicKeyContext
+          P: ToHex 
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result< (), fmt::Error>{
 		writeln!(f, "secret:  {}", self.secret.to_hex())?;
@@ -21,26 +23,22 @@ impl<S,P> fmt::Display for KeyPair<S, P>
 }
 
 
-impl<S,P:PublicKeyContext> KeyPair<S,P>{
+
+impl<S,P:KeyContext> KeyPair<S,P>{
     pub fn context(&self) -> String{
         self.public.context()
     }
 }
 
-
 impl<S,P> KeyPair<S, P>
-    where S: SecretKeyContext + FromUnsafeSlice, 
-          P: PublicKeyContext  
+    where S: From<[u8]>, 
+          P: PublicKeyContext + KeyContext  
 {
     pub fn from_secret_slice(slice: &[u8]) -> Result< KeyPair<S,P>, ()>{
-        let secret = S::from_unsafe_slice(slice)?;
+        let secret: S = (*slice).into();
         let public = P::from_secret(&secret)?;
 
-        if ! <S as SecretKeyContext>::valid(&secret){
-            return Err(Error::InvalidSecretKey);
-        }
-
-        if ! <P as PublicKeyContext>::valid(&public){
+        if ! <P as KeyContext>::valid(&public){
             return Err(Error::InvalidPublicKey);
         }
 
@@ -50,15 +48,22 @@ impl<S,P> KeyPair<S, P>
 }
 
 impl<S,P> KeyPair<S,P>
-    where S: SecretKeyContext, 
-          P: PublicKeyContext
+    where S: From<[u8]> + KeyContext,  
+          P: KeyContext + PublicKeyContext
 {
     pub fn generate_keypair() -> Result < KeyPair<S,P>, ()>{
-        let secret =  S::random_fill()?;
+        let ssize = S::keylength();
+        
+        let arr =  [0u8;ssize]; 
+        random::fill(&arr)?;
+        let secret: S =  arr.into();
         let public =  P::from_secret(&secret)?;
     
+        if ! <S as KeyContext>::valid(&secret){
+            return Err(Error::InvalidSecretKey);
+        }
     
-        if ! <P as PublicKeyContext>::valid(&public){
+        if ! <P as KeyContext>::valid(&public){
             return Err(Error::InvalidPublicKey);
         }
 

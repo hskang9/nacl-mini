@@ -6,4 +6,5 @@ Cargo.lock
 src/bin
 *.sw?
 *.old
+*.old.*
 *~
