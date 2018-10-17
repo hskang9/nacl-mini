@@ -1,4 +1,4 @@
-## Nacl mini
+## NACL-Mini
 A partial rust implementation of authenticated encryption functions of libsodium using cryptographic primitives
 from the Rust-Crypto project.
 
