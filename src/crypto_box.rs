@@ -16,7 +16,7 @@ pub fn precompute(pk:&Public, sk: &Secret)->[u8;SECRET_KEY_BYTES]{
 
 }
 
-pub fn generate_x25519_keypair() -> KeyPair<Secret, Public> {
+pub fn gen_keypair() -> KeyPair<Secret, Public> {
     
     KeyPair::<Secret, Public>::generate_keypair().unwrap()
     
@@ -42,15 +42,13 @@ pub fn open(cipher: &[u8], nonce: &[u8;XSALSA20_NONCE_BYTES], their_public: &Pub
     
 }
 
-
 #[cfg(test)]
 mod test{
 
 
     use super::*;
-    use ::KeyPair;
-    //use super::super::KeyPairX25519;
 
+    // test arrays from cr.yp.to/highspeed/naclcrypto-20090310.pdf
     const ALICESK: [u8;32] =
         [  
              0x77,0x07,0x6d,0x0a,0x73,0x18,0xa5,0x7d
@@ -91,9 +89,9 @@ mod test{
 
     #[test]
     fn test_precompute(){
-       let kp = KeyPairX25519::from_secret_slice(&BOBSK)
-                    .unwrap();
-        let bob_pk =    kp.public(); 
+        use crate::traits::FromUnsafeSlice;
+        
+        let bob_pk =    Public::from_unsafe_secret_slice(&BOBSK).unwrap();
     
         let alice_sk = Secret::from_unsafe_slice(&ALICESK).unwrap();
     
@@ -151,19 +149,38 @@ mod test{
                 ,0xe3,0x55,0xa5
             
             ];
-        let alice_kp = KeyPairX25519::from_secret_slice(&ALICESK).unwrap();
-        let bob_kp = KeyPairX25519::from_secret_slice(&BOBSK).unwrap();
         
-        let encrypt = seal(&djb_sample.as_slice(), &DJB_NONCE, bob_kp.public(), alice_kp.secret());
+
+        let akp = KeyPair::<Secret,Public>::from_secret_slice(&ALICESK).unwrap();
+        let bkp = KeyPair::<Secret,Public>::from_secret_slice(&BOBSK).unwrap();
+
+        let encrypt = seal(&djb_sample.as_slice(), &DJB_NONCE, bkp.public(), akp.secret());
         let encrypt = encrypt.unwrap();  
 
         assert_eq!(encrypt, djb_encrypted);
 
-        let plain = open(&djb_encrypted, &DJB_NONCE, alice_kp.public(), bob_kp.secret());
+        let plain = open(&djb_encrypted, &DJB_NONCE, akp.public(), bkp.secret());
         let plain = plain.unwrap();
 
         assert_eq!(plain, djb_sample);
         
   
     }
+    use crate::gen_nonce;
+
+    #[test]
+    fn test_encrypt_decrypt(){
+        let bkp = gen_keypair();
+        let akp = gen_keypair();
+
+        let msg = b"The grapes of wrath!";
+        let nonce = gen_nonce();
+
+        let encrypt = seal(msg, &nonce, bkp.public(), akp.secret()).unwrap();
+        let plain = open(&encrypt, &nonce, akp.public(), bkp.secret()).unwrap();
+
+        assert_eq!(plain, b"The grapes of wrath!");
+        assert_ne!(plain, b"The grapes of wrath");
+    }
 }
+
