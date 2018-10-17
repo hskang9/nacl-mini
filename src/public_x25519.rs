@@ -7,15 +7,15 @@ use rustc_hex::ToHex;
 
 use crypto::curve25519;
 
-use ::{Error, Secret, PUBLIC25519_BYTES};
-use traits::{KeyContext,PublicKeyContext};
+use super::{Error,  PUBLIC25519_BYTES};
+use super::traits::{KeyContext,PublicKeyContext, FromUnsafeSlice};
 
 static CONTEXT: &str = "x25519";
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct PublicX25519 ( [u8;PUBLIC25519_BYTES]);
+pub struct Public ( [u8;PUBLIC25519_BYTES]);
 
-impl fmt::Display for PublicX25519{
+impl fmt::Display for Public{
        fn fmt(&self, f:&mut fmt::Formatter)-> Result<(), fmt::Error>{
           for c in &self.0[..PUBLIC25519_BYTES]{
             write!(f, "{:02X} ", c)?;
@@ -24,14 +24,14 @@ impl fmt::Display for PublicX25519{
       }
 }
 
-impl Deref for PublicX25519{
+impl Deref for Public{
     type Target = [u8;PUBLIC25519_BYTES];
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl ToHex for PublicX25519{
+impl ToHex for Public{
     fn to_hex(&self) -> String{
         let mut a = String::from("");
         for byte in self.0.iter() {
@@ -42,47 +42,47 @@ impl ToHex for PublicX25519{
     }
     
 }
-impl cmp::PartialEq<[u8; 32]>for PublicX25519{
+impl cmp::PartialEq<[u8; 32]>for Public{
     fn eq(&self, other: &[u8;32])->bool{
         self.0 == *other
     }
 }
 
-impl<T> PublicKeyContext<T> for PublicX25519
-    where T: Into<[u8;32]>
+impl<T> PublicKeyContext<T> for Public
+    where T: FromUnsafeSlice
 {
-    type E= Error;
+    type RHS=Self;
 
-    fn from_secret (secret: &T)-> Result<PublicX25519, Error>{
-        let secret: [u8;32] = secret.into();
-        let p = curve25519::curve25519_base(&secret);
-        PublicX25519::new(&p)
+    fn from_secret (secret: &T)-> Result<Public, Error>{
+        let secret  = (*secret).as_byte_array_ref();
+        let p = curve25519::curve25519_base(secret);
+        Public::new(&p)
     }
 
 }
 
-impl KeyContext for PublicX25519{
-    fn keylength()->usize{
-        return PUBLIC25519_BYTES;
-    }
+
+impl KeyContext for Public{
+    const KEYLENGTH: usize = PUBLIC25519_BYTES;
+
 
     fn valid(&self)->bool{
         //no consensus on if curve25519 keys 
         //should be validated so we only check the len
         return self.0.len() >= PUBLIC25519_BYTES; 
     }
-    fn context(&self)->bool{
-        return CONTEXT;
+    fn context(&self)->String{
+        return CONTEXT.to_string();
     }
 }
 
     
 
-impl PublicX25519{
-    pub fn new(pk: &[u8;32]) -> Result<PublicX25519, Error>{
+impl Public{
+    pub fn new(pk: &[u8;32]) -> Result<Public, Error>{
         let mut p = [0u8;32];
         p.copy_from_slice(pk);
-        Ok(PublicX25519(p))
+        Ok(Public(p))
     }
 
 

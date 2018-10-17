@@ -1,10 +1,11 @@
 use crypto::{curve25519, salsa20};
-use ::{PublicX25519, Secret, Error};
+use super::{KeyPair,Public, Secret, Error};
+use crate::XSALSA20_NONCE_BYTES;
 
-use crypto_secretbox as secretbox;
+use super::crypto_secretbox as secretbox;
+const SECRET_KEY_BYTES: usize = 32usize;
 
-
-pub fn precompute(pk:&PublicX25519, sk: &Secret)->[u8;SECRET_BYTES]{
+pub fn precompute(pk:&Public, sk: &Secret)->[u8;SECRET_KEY_BYTES]{
     let zeros = [0u8;16];
     let mut first_key = [0u8;32];
 
@@ -15,14 +16,14 @@ pub fn precompute(pk:&PublicX25519, sk: &Secret)->[u8;SECRET_BYTES]{
 
 }
 
-pub fn generate_x25519_keypair() -> KeyPair<Secret, PublicX25519> {
+pub fn generate_x25519_keypair() -> KeyPair<Secret, Public> {
     
-    KeyPair::<Secret, PublicX25519>::generate_keypair().unwrap()
+    KeyPair::<Secret, Public>::generate_keypair().unwrap()
     
 }
 
 
-pub fn seal(msg: &[u8], nonce: &[u8;XSALSA20_NONCE_BYTES], their_public: &PublicX25519,
+pub fn seal(msg: &[u8], nonce: &[u8;XSALSA20_NONCE_BYTES], their_public: &Public,
                 our_secret: &Secret) -> Result< Vec<u8>, Error>
 {
 
@@ -32,7 +33,7 @@ pub fn seal(msg: &[u8], nonce: &[u8;XSALSA20_NONCE_BYTES], their_public: &Public
 
 }
 
-pub fn open(cipher: &[u8], nonce: &[u8;XSALSA20_NONCE_BYTES], their_public: &PublicX25519, our_secret: &Secret)
+pub fn open(cipher: &[u8], nonce: &[u8;XSALSA20_NONCE_BYTES], their_public: &Public, our_secret: &Secret)
     -> Result< Vec<u8>, Error>
 {
     

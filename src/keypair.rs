@@ -1,10 +1,9 @@
 use std::fmt;
-use std::convert::{From,Into};
 use rustc_hex::ToHex;
 
-
-use traits::{PublicKeyContext, KeyContext};
-use utils::rand_fill;
+use super::Error;
+use super::traits::{PublicKeyContext, KeyContext, FromUnsafeSlice};
+use super::utils::random_fill;
 
 #[derive(Debug,Clone,PartialEq)]
 pub struct KeyPair<S,P>{
@@ -31,14 +30,20 @@ impl<S,P:KeyContext> KeyPair<S,P>{
 }
 
 impl<S,P> KeyPair<S, P>
-    where S: From<[u8]>, 
-          P: PublicKeyContext + KeyContext  
+    where S: FromUnsafeSlice, 
+          P: PublicKeyContext<S> + KeyContext  
 {
-    pub fn from_secret_slice(slice: &[u8]) -> Result< KeyPair<S,P>, ()>{
-        let secret: S = (*slice).into();
+    pub fn from_secret_slice(slice: &[u8]) -> Result< KeyPair<S,P>, Error>{
+        let secret  = S::from_unsafe_slice(slice)?;
+    
+        //let public = P::generator_fn     P::generate(secret)
+        //scalarmult
+        //p::generate_from_slice(secret.slice()
+        //) p.slice_
+
         let public = P::from_secret(&secret)?;
 
-        if ! <P as KeyContext>::valid(&public){
+        if ! public.valid(){
             return Err(Error::InvalidPublicKey);
         }
 
@@ -48,15 +53,14 @@ impl<S,P> KeyPair<S, P>
 }
 
 impl<S,P> KeyPair<S,P>
-    where S: From<[u8]> + KeyContext,  
-          P: KeyContext + PublicKeyContext
+    where S: FromUnsafeSlice + KeyContext,  
+          P: KeyContext + PublicKeyContext<S>
 {
-    pub fn generate_keypair() -> Result < KeyPair<S,P>, ()>{
-        let ssize = S::keylength();
+    pub fn generate_keypair() -> Result < KeyPair<S,P>, Error>{
         
-        let arr =  [0u8;ssize]; 
-        random::fill(&arr)?;
-        let secret: S =  arr.into();
+        let arr =  vec![0u8;S::KEYLENGTH]; 
+        random_fill(&arr[..])?;
+        let secret  = S::from_unsafe_slice(&arr[..])?;
         let public =  P::from_secret(&secret)?;
     
         if ! <S as KeyContext>::valid(&secret){

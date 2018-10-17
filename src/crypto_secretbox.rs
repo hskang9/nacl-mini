@@ -1,13 +1,13 @@
-use crypto::{curve25519, salsa20, poly1305};
+use crypto::{salsa20, poly1305};
 
 use crypto::symmetriccipher::SynchronousStreamCipher;
 use crypto::mac::Mac;
 
-use super::{PublicX25519, Secret, Error}; 
+use super::Error; 
 
 
 
-use ::{XSALSA20_NONCE_BYTES, PRIVATE_KEY_BYTES, POLY1305_MAC_BYTES};
+use super::{XSALSA20_NONCE_BYTES, POLY1305_MAC_BYTES};
 
 pub const SECRET_BYTES: usize =32;
 
