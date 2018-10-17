@@ -1,5 +1,5 @@
 [package]
-name = "nacl-mini"
+name = "nacl_mini"
 version = "0.1.0"
 authors = ["javadevelopr <java.developer.cl@gmail.com>"]
 edition = "2018"
