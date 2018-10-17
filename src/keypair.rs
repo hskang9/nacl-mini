@@ -30,22 +30,14 @@ impl<S,P:KeyContext> KeyPair<S,P>{
 }
 
 impl<S,P> KeyPair<S, P>
-    where S: FromUnsafeSlice, 
-          P: PublicKeyContext<S> + KeyContext  
+    where S: FromUnsafeSlice<RHS=S>, 
+          P: PublicKeyContext + KeyContext + FromUnsafeSlice<RHS=P>  
 {
     pub fn from_secret_slice(slice: &[u8]) -> Result< KeyPair<S,P>, Error>{
         let secret  = S::from_unsafe_slice(slice)?;
     
-        //let public = P::generator_fn     P::generate(secret)
-        //scalarmult
-        //p::generate_from_slice(secret.slice()
-        //) p.slice_
 
-        let public = P::from_secret(&secret)?;
-
-        if ! public.valid(){
-            return Err(Error::InvalidPublicKey);
-        }
+        let public = P::from_unsafe_secret_slice(slice)?;
 
 
         Ok(   KeyPair{ secret, public} )
@@ -53,23 +45,16 @@ impl<S,P> KeyPair<S, P>
 }
 
 impl<S,P> KeyPair<S,P>
-    where S: FromUnsafeSlice + KeyContext,  
-          P: KeyContext + PublicKeyContext<S>
+    where S: FromUnsafeSlice<RHS=S> + KeyContext,  
+          P: PublicKeyContext + KeyContext + FromUnsafeSlice<RHS=P>
 {
     pub fn generate_keypair() -> Result < KeyPair<S,P>, Error>{
         
-        let arr =  vec![0u8;S::KEYLENGTH]; 
-        random_fill(&arr[..])?;
+        let mut arr =  vec![0u8;S::KEYLENGTH]; 
+        random_fill(&mut arr[..])?;
         let secret  = S::from_unsafe_slice(&arr[..])?;
-        let public =  P::from_secret(&secret)?;
+        let public =  P::from_unsafe_secret_slice(&arr[..])?;
     
-        if ! <S as KeyContext>::valid(&secret){
-            return Err(Error::InvalidSecretKey);
-        }
-    
-        if ! <P as KeyContext>::valid(&public){
-            return Err(Error::InvalidPublicKey);
-        }
 
         Ok( KeyPair{ secret, public } )
     }

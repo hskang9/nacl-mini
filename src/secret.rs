@@ -10,7 +10,7 @@ impl KeyContext for Secret{
 
 
 
-    fn valid(&self)->bool{
+    fn is_valid_key(&self)->bool{
         self.len() == PRIVATE_KEY_BYTES
     }
 }
@@ -20,15 +20,16 @@ impl FromUnsafeSlice for Secret{
 
     fn from_unsafe_slice( slice: &[u8]) -> Result<Secret, Error >{
         assert!(slice.len() == PRIVATE_KEY_BYTES);
-        let s = [0u8;PRIVATE_KEY_BYTES];
-        s[..].copy_from_slice(slice);
+        let mut s = [0u8;PRIVATE_KEY_BYTES];
+        s.copy_from_slice(slice);
 
         Ok(s)
     }
 
-    fn as_byte_array_ref(&self)-> &[u8;32]{
-        &self
+    fn from_unsafe_secret_slice( secret_slice: &[u8])-> Result<Secret,Error>{
+        Secret::from_unsafe_slice(secret_slice)
     }
+
 
 }
 

@@ -1,6 +1,5 @@
 use std::fmt;
 use std::fmt::Write;
-use std::convert::{From, Into};
 use std::cmp;
 use std::ops::Deref;
 use rustc_hex::ToHex;
@@ -48,25 +47,14 @@ impl cmp::PartialEq<[u8; 32]>for Public{
     }
 }
 
-impl<T> PublicKeyContext<T> for Public
-    where T: FromUnsafeSlice
-{
-    type RHS=Self;
-
-    fn from_secret (secret: &T)-> Result<Public, Error>{
-        let secret  = (*secret).as_byte_array_ref();
-        let p = curve25519::curve25519_base(secret);
-        Public::new(&p)
-    }
-
-}
+impl PublicKeyContext for Public {}
 
 
 impl KeyContext for Public{
     const KEYLENGTH: usize = PUBLIC25519_BYTES;
 
 
-    fn valid(&self)->bool{
+    fn is_valid_key(&self)->bool{
         //no consensus on if curve25519 keys 
         //should be validated so we only check the len
         return self.0.len() >= PUBLIC25519_BYTES; 
@@ -76,7 +64,22 @@ impl KeyContext for Public{
     }
 }
 
-    
+impl FromUnsafeSlice for Public{
+    type RHS=Self;
+
+    fn from_unsafe_secret_slice (secret: &[u8])-> Result<Public, Error>{
+        let p = curve25519::curve25519_base(secret);
+        Public::new(&p)
+    }
+
+    fn from_unsafe_slice(slice: &[u8])->Result<Public, Error>{
+        assert!(slice.len() >= PUBLIC25519_BYTES);
+        let mut p =[0u8;PUBLIC25519_BYTES];
+        p.copy_from_slice(&slice[..32]);
+        Ok (  Public(p))
+    }
+
+}
 
 impl Public{
     pub fn new(pk: &[u8;32]) -> Result<Public, Error>{

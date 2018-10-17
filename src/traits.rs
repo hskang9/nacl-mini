@@ -5,21 +5,14 @@ pub trait KeyContext{
 
 
     //optional
-    fn valid(&self) -> bool{ true }
-    fn context(&self)->String{ "None".to_string }
+    fn is_valid_key(&self) -> bool{ true }
+    fn context(&self)->String{ "".to_string() }
 
 }
 
-pub trait PublicKeyContext<S>{
-    type RHS;
-    
+pub trait PublicKeyContext{
 
-    fn is_public_key(&self) -> bool{
-        return true;
-    }
-
-
-    fn from_secret(secret:&S) -> Result< Self::RHS, Error>;
+    const ISPUBLICKEY: bool = true;
 
 }
 
@@ -27,5 +20,5 @@ pub trait FromUnsafeSlice{
     type RHS;
 
     fn from_unsafe_slice(slice:&[u8])-> Result <Self::RHS, Error>;
-    fn as_byte_array_ref(&self) -> &Self::RHS;
+    fn from_unsafe_secret_slice(secret_slice:&[u8]) -> Result< Self::RHS, Error>;
 }

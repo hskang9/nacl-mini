@@ -7,7 +7,7 @@ use std::time::SystemTime;
 const MAX_ARRAY_LEN: usize = 128usize;
 
 
-pub fn random_fill(arr: &[u8])->Result<(), Error>{
+pub fn random_fill(arr: &mut [u8])->Result<(), Error>{
     let l = arr.len();
     if l > MAX_ARRAY_LEN{
         return Err(Error::InvalidBufferLength);
