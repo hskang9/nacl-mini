@@ -7,11 +7,11 @@ pub mod crypto_box;
 pub mod crypto_secretbox;
 pub mod utils;
 pub mod keypair;
+pub mod traits;
 
 mod public_x25519;
 mod secret;
 mod error;
-mod traits;
 
 
 
