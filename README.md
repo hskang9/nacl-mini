@@ -1,5 +1,5 @@
 ## Nacl mini
-A Rust partial implementation of authenticated encryption functions of libsodium using cryptographic primitives
+A partial rust implementation of authenticated encryption functions of libsodium using cryptographic primitives
 from the Rust-Crypto project.
 
 This includes the seal() and open() functions. 
