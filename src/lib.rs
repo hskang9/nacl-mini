@@ -1,6 +1,7 @@
 
-
 extern crate crypto;
+extern crate rand;
+extern crate rustc_hex;
 
 
 pub mod crypto_box;

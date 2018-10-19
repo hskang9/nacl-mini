@@ -1,6 +1,6 @@
 use crypto::{curve25519, salsa20};
 use super::{KeyPair,Public, Secret, Error};
-use crate::XSALSA20_NONCE_BYTES;
+use super::XSALSA20_NONCE_BYTES;
 
 use super::crypto_secretbox as secretbox;
 const SECRET_KEY_BYTES: usize = 32usize;
@@ -89,7 +89,7 @@ mod test{
 
     #[test]
     fn test_precompute(){
-        use crate::traits::FromUnsafeSlice;
+        use super::super::traits::FromUnsafeSlice;
         
         let bob_pk =    Public::from_unsafe_secret_slice(&BOBSK).unwrap();
     
@@ -166,7 +166,7 @@ mod test{
         
   
     }
-    use crate::gen_nonce;
+    use super::super::gen_nonce;
 
     #[test]
     fn test_encrypt_decrypt(){

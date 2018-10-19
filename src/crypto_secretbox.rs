@@ -1,5 +1,5 @@
+use crypto;
 use crypto::{salsa20, poly1305};
-
 use crypto::symmetriccipher::SynchronousStreamCipher;
 use crypto::mac::Mac;
 

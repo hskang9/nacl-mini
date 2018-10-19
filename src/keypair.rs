@@ -78,7 +78,7 @@ mod test{
 
 
     use super::KeyPair;
-    use crate::{Public, Secret};
+    use super::super::{Public, Secret};
     
     // test array from cr.yp.to/highspeed/naclcrypto-20090310.pdf
     const SK: [u8;32] =
