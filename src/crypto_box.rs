@@ -5,6 +5,16 @@ use super::XSALSA20_NONCE_BYTES;
 use super::crypto_secretbox as secretbox;
 const SECRET_KEY_BYTES: usize = 32usize;
 
+
+pub fn gen_keypair() -> KeyPair<Secret, Public> {
+    KeyPair::<Secret, Public>::generate_keypair().unwrap()
+}
+
+pub fn gen_keypair_from_secret(secret: &[u8;32])-> KeyPair<Secret,Public>{
+    KeyPair::<Secret, Public>::from_secret_slice(secret).unwrap()
+}
+
+
 pub fn precompute(pk:&Public, sk: &Secret)->[u8;SECRET_KEY_BYTES]{
     let zeros = [0u8;16];
     let mut first_key = [0u8;32];
@@ -14,12 +24,6 @@ pub fn precompute(pk:&Public, sk: &Secret)->[u8;SECRET_KEY_BYTES]{
     
     first_key
 
-}
-
-pub fn gen_keypair() -> KeyPair<Secret, Public> {
-    
-    KeyPair::<Secret, Public>::generate_keypair().unwrap()
-    
 }
 
 

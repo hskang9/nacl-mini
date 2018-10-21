@@ -5,7 +5,7 @@ authors = ["javadevelopr <java.developer.cl@gmail.com>"]
 
 [dependencies]
 rust-crypto = "^0.2"
-rand = "0.4"
-rustc-hex = "1.0"
+rand = "^0.4"
+rustc-hex = "^1.0"
 
 
