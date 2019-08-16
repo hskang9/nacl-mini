@@ -1,6 +1,1 @@
-os:
-        -linux
-        -osx
-language: rust
-        - stable
- 
+language:       rust
