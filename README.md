@@ -1,6 +1,6 @@
 ## NACL-Mini
 
-[![Build Status](https://travis-ci.org/javadevelopr/nacl-mini.svg?branch=master)](https://travis-ci.org/javadevelopr/nacl-mini)))]]
+[![Build Status](https://travis-ci.org/javadevelopr/nacl-mini.svg?branch=master)](https://travis-ci.org/javadevelopr/nacl-mini)
 
 A partial rust implementation of authenticated encryption functions of libsodium using cryptographic primitives
 from the Rust-Crypto project.
