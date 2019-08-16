@@ -34,7 +34,7 @@ impl ToHex for Public{
     fn to_hex(&self) -> String{
         let mut a = String::from("");
         for byte in self.0.iter() {
-            write!(&mut a, "{:x}", byte);
+              write!(&mut a, "{:x}", byte);
         }
         a.to_string()
 
@@ -54,13 +54,13 @@ impl KeyContext for Public{
     const KEYLENGTH: usize = PUBLIC25519_BYTES;
 
 
-    fn is_valid_key(&self)->bool{
+    fn is_valid_key(arr: &[u8])->bool{
         //no consensus on if curve25519 keys 
         //should be validated so we only check the len
-        return self.0.len() >= PUBLIC25519_BYTES; 
+        arr.len() >= PUBLIC25519_BYTES 
     }
     fn context(&self)->String{
-        return CONTEXT.to_string();
+        CONTEXT.to_string()
     }
 }
 
@@ -69,11 +69,11 @@ impl FromUnsafeSlice for Public{
 
     fn from_unsafe_secret_slice (secret: &[u8])-> Result<Public, Error>{
         let p = curve25519::curve25519_base(secret);
-        Public::new(&p)
+        Ok(Public::new(&p))
     }
 
     fn from_unsafe_slice(slice: &[u8])->Result<Public, Error>{
-        assert!(slice.len() >= PUBLIC25519_BYTES);
+        assert!(Public::is_valid_key(slice));
         let mut p =[0u8;PUBLIC25519_BYTES];
         p.copy_from_slice(&slice[..32]);
         Ok (  Public(p))
@@ -82,10 +82,10 @@ impl FromUnsafeSlice for Public{
 }
 
 impl Public{
-    pub fn new(pk: &[u8;32]) -> Result<Public, Error>{
+    pub fn new(pk: &[u8;32]) -> Public{
         let mut p = [0u8;32];
         p.copy_from_slice(pk);
-        Ok(Public(p))
+        Public(p)
     }
 
 

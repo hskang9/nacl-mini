@@ -10,8 +10,8 @@ impl KeyContext for Secret{
 
 
 
-    fn is_valid_key(&self)->bool{
-        self.len() == PRIVATE_KEY_BYTES
+    fn is_valid_key(arr:&[u8])->bool{
+        arr.len() == PRIVATE_KEY_BYTES
     }
 }
 

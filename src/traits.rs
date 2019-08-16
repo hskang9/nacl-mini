@@ -5,7 +5,7 @@ pub trait KeyContext{
 
 
     //optional
-    fn is_valid_key(&self) -> bool{ true }
+    fn is_valid_key(_arr:&[u8]) -> bool{ true }
     fn context(&self)->String{ "".to_string() }
 
 }
