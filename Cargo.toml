@@ -1,7 +1,7 @@
 [package]
-name = "nacl_mini"
+name = "saltbabe"
 version = "0.1.0"
-authors = ["javadevelopr <java.developer.cl@gmail.com>"]
+authors = ["javadevelopr <java.developer.cl@gmail.com>", "hskang9 <hskang9@gmail.com>"]
 
 [dependencies]
 rust-crypto = "^0.2"
