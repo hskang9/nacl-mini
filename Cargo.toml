@@ -3,7 +3,7 @@ name = "saltbabe"
 version = "0.1.0"
 authors = ["javadevelopr <java.developer.cl@gmail.com>", "hskang9 <hskang9@gmail.com>"]
 description = "tweetnacl library in pure rust"
-license = "GPLv3"
+license-file = "LICENSE"
 
 [dependencies]
 rust-crypto = "^0.2"
