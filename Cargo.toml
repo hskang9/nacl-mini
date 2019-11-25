@@ -1,6 +1,6 @@
 [package]
 name = "saltbabe"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["javadevelopr <java.developer.cl@gmail.com>", "hskang9 <hskang9@gmail.com>"]
 description = "tweetnacl library in pure rust"
 license-file = "LICENSE"
