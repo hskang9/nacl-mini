@@ -10,6 +10,8 @@ pub enum Error {
 	InvalidPublicKey,
 	InvalidBufferLength,
 	Io(::std::io::Error),
+	HexIo(::hex::FromHexError),
+	RustcHexIo(::rustc_hex::FromHexError),
 	Custom(String),
 }
 
@@ -21,6 +23,8 @@ impl fmt::Display for Error {
 			Error::InvalidBufferLength => "Invalid buffer length".into(),
 			Error::Io(ref err) => format!("I/O error: {}", err),
 			Error::Custom(ref s) => s.clone(),
+			Error::HexIo(ref err) => format!("Hex error: {}", err),
+			Error::RustcHexIo(ref err) => format!("RustcHex error: {}", err),
 		};
 
 		f.write_fmt(format_args!("Crypto error ({})", msg))
@@ -45,22 +49,14 @@ impl From<::std::io::Error> for Error {
 	}
 }
 
-#[cfg(feature = "std")]
 impl From<::rustc_hex::FromHexError> for Error {
-    fn description(&self) -> &str {
-        match *self {
-            InvalidHexCharacter(_, _) => "invalid character",
-            InvalidHexLength => "invalid length",
-        }
-    }
+    fn from(err: ::rustc_hex::FromHexError) -> Error {
+		Error::RustcHexIo(err)
+	}
 }
 
-#[cfg(feature = "std")]
 impl From<::hex::FromHexError> for Error {
-    fn description(&self) -> &str {
-        match *self {
-            InvalidHexCharacter(_, _) => "invalid character",
-            InvalidHexLength => "invalid length",
-        }
-    }
+    fn from(err: ::hex::FromHexError) -> Error {
+		Error::HexIo(err)
+	}
 }
