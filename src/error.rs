@@ -1,7 +1,6 @@
 
 // Adapted from https://github.com/paritytech/parity-ethereum/blob/master/ethkey/src/error.rs
 use std::{fmt, error};
-use rustc_hex::FromHexError::*;
 
 
 
@@ -47,7 +46,17 @@ impl From<::std::io::Error> for Error {
 }
 
 #[cfg(feature = "std")]
-impl From<hex::FromHexError> for Error {
+impl From<::rustc_hex::FromHexError> for Error {
+    fn description(&self) -> &str {
+        match *self {
+            InvalidHexCharacter(_, _) => "invalid character",
+            InvalidHexLength => "invalid length",
+        }
+    }
+}
+
+#[cfg(feature = "std")]
+impl From<::hex::FromHexError> for Error {
     fn description(&self) -> &str {
         match *self {
             InvalidHexCharacter(_, _) => "invalid character",
