@@ -1,6 +1,7 @@
 
 // Adapted from https://github.com/paritytech/parity-ethereum/blob/master/ethkey/src/error.rs
 use std::{fmt, error};
+use rustc_hex::*;
 
 #[derive(Debug)]
 pub enum Error {
