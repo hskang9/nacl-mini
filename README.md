@@ -4,6 +4,22 @@
 
 This is a fork of [NACL-Mini](https://github.com/javadevelopr/nacl-mini).
 
+I have added hex error impls so that it can be encoded with `hex` and `rustc_hex` using `?`(Optional syntax).
+
+## Usage
+
+### Sign & Verify
+
+### Hash
+
+### Box
+
+```rust
+
+```
+
+### CrytoBox
+
 
 ## NACL-Mini
 
